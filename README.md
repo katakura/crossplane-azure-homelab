@@ -104,7 +104,7 @@ az network nsg rule update \
 
 ## Related article
 
-[自宅k8sクラスタからAzureリソースを宣言的に管理する ─ CrossplaneでYAML即Azureを試す](https://zenn.dev/yotan/articles/crossplane-azure-homelab) (Japanese)
+[第三の刺客、Crossplane ─ Bicep・Terraformの次に来るIaCを試す](https://zenn.dev/yotan/articles/crossplane-azure-homelab) (Japanese)
 
 ## License
 
