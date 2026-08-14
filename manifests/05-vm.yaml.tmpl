@@ -1,0 +1,46 @@
+# Render with envsubst before applying (see scripts/deploy-vm-example.sh):
+#   envsubst < manifests/05-vm.yaml.tmpl | kubectl apply -f -
+#
+# NSG_ID is the NSG's full Azure resource ID. It's passed as a plain string
+# because NetworkInterfaceSecurityGroupAssociation (azure.upbound.io) can't
+# resolve a Ref/Selector across to a SecurityGroup in the azure.m.upbound.io
+# group — see README "Gotchas".
+
+apiVersion: network.azure.upbound.io/v1beta1
+kind: NetworkInterfaceSecurityGroupAssociation
+metadata:
+  name: nic-nsg-assoc-crossplane-demo-vm
+spec:
+  forProvider:
+    networkSecurityGroupId: "${NSG_ID}"
+    networkInterfaceIdRef:
+      name: nic-crossplane-demo-vm
+  providerConfigRef:
+    name: default
+---
+apiVersion: compute.azure.upbound.io/v1beta2
+kind: LinuxVirtualMachine
+metadata:
+  name: vm-crossplane-demo
+spec:
+  forProvider:
+    resourceGroupName: rg-crossplane-demo
+    location: japaneast
+    size: Standard_B1s
+    adminUsername: azureuser
+    disablePasswordAuthentication: true
+    adminSshKey:
+      - username: azureuser
+        publicKey: "${SSH_PUBLIC_KEY}"
+    networkInterfaceIdsRefs:
+      - name: nic-crossplane-demo-vm
+    osDisk:
+      caching: ReadWrite
+      storageAccountType: Standard_LRS
+    sourceImageReference:
+      publisher: Canonical
+      offer: 0001-com-ubuntu-server-jammy
+      sku: 22_04-lts-gen2
+      version: latest
+  providerConfigRef:
+    name: default

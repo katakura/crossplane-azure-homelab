@@ -1,0 +1,26 @@
+# Namespaced CRD group (network.azure.m.upbound.io) — see README for why.
+# Render with envsubst before applying:
+#   envsubst < manifests/04-nsg.yaml.tmpl | kubectl apply -n crossplane-system -f -
+
+apiVersion: network.azure.m.upbound.io/v1beta1
+kind: SecurityGroup
+metadata:
+  name: nsg-crossplane-demo-vm
+  namespace: crossplane-system
+spec:
+  forProvider:
+    resourceGroupName: rg-crossplane-demo
+    location: japaneast
+    securityRule:
+      - name: allow-ssh-demo
+        priority: 100
+        direction: Inbound
+        access: Allow
+        protocol: Tcp
+        sourcePortRange: "*"
+        destinationPortRange: "22"
+        sourceAddressPrefix: "${MY_IP}/32"
+        destinationAddressPrefix: "*"
+  providerConfigRef:
+    kind: ProviderConfig
+    name: default

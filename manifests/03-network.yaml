@@ -1,0 +1,66 @@
+# Bigger example: VNet + Subnet + NSG + VM, to show the same drift-detection
+# behaviour on a security-relevant resource (an NSG rule) instead of just a
+# storage property. Apply in this order:
+#
+#   kubectl apply -f manifests/03-network.yaml
+#   envsubst < manifests/04-nsg.yaml.tmpl | kubectl apply -n crossplane-system -f -
+#   ./scripts/deploy-vm-example.sh   # resolves the NSG's Azure ID and applies 05-vm.yaml
+#
+# See scripts/deploy-vm-example.sh for why the NSG needs its own step.
+
+apiVersion: network.azure.upbound.io/v1beta1
+kind: VirtualNetwork
+metadata:
+  name: vnet-crossplane-demo
+spec:
+  forProvider:
+    resourceGroupName: rg-crossplane-demo
+    location: japaneast
+    addressSpace:
+      - 10.10.0.0/16
+  providerConfigRef:
+    name: default
+---
+apiVersion: network.azure.upbound.io/v1beta1
+kind: Subnet
+metadata:
+  name: subnet-crossplane-demo-vm
+spec:
+  forProvider:
+    resourceGroupName: rg-crossplane-demo
+    virtualNetworkName: vnet-crossplane-demo
+    addressPrefixes:
+      - 10.10.1.0/24
+  providerConfigRef:
+    name: default
+---
+apiVersion: network.azure.upbound.io/v1beta1
+kind: PublicIP
+metadata:
+  name: pip-crossplane-demo-vm
+spec:
+  forProvider:
+    resourceGroupName: rg-crossplane-demo
+    location: japaneast
+    allocationMethod: Static
+    sku: Standard
+  providerConfigRef:
+    name: default
+---
+apiVersion: network.azure.upbound.io/v1beta1
+kind: NetworkInterface
+metadata:
+  name: nic-crossplane-demo-vm
+spec:
+  forProvider:
+    resourceGroupName: rg-crossplane-demo
+    location: japaneast
+    ipConfiguration:
+      - name: internal
+        privateIpAddressAllocation: Dynamic
+        subnetIdRef:
+          name: subnet-crossplane-demo-vm
+        publicIpAddressIdRef:
+          name: pip-crossplane-demo-vm
+  providerConfigRef:
+    name: default

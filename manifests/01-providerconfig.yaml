@@ -1,0 +1,33 @@
+# Run scripts/create-service-principal.sh first to create the azure-secret
+# this ProviderConfig references.
+#
+# Two ProviderConfigs are needed because this provider version ships
+# resources under two different API groups:
+#   - azure.upbound.io      (cluster-scoped, most resources)
+#   - azure.m.upbound.io    (namespaced, e.g. SecurityGroup in this version)
+# Both point at the same Secret.
+
+apiVersion: azure.upbound.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: default
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      namespace: crossplane-system
+      name: azure-secret
+      key: creds
+---
+apiVersion: azure.m.upbound.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: default
+  namespace: crossplane-system
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      namespace: crossplane-system
+      name: azure-secret
+      key: creds

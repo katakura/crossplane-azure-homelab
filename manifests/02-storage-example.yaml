@@ -1,0 +1,32 @@
+# Minimal example: a ResourceGroup and a StorageAccount, created straight
+# from YAML. Good for confirming the whole chain works end to end, and for
+# trying the drift-detection behaviour described in the README:
+#
+#   az storage account update --name <account> --resource-group rg-crossplane-demo \
+#     --access-tier Cool
+#
+# Watch it flip back to Hot on its own within a few minutes.
+
+apiVersion: azure.upbound.io/v1beta1
+kind: ResourceGroup
+metadata:
+  name: rg-crossplane-demo
+spec:
+  forProvider:
+    location: japaneast
+  providerConfigRef:
+    name: default
+---
+apiVersion: storage.azure.upbound.io/v1beta2
+kind: Account
+metadata:
+  name: stcpdemo01 # must be globally unique; change before applying
+spec:
+  forProvider:
+    resourceGroupName: rg-crossplane-demo
+    location: japaneast
+    accountTier: Standard
+    accountReplicationType: LRS
+    accountKind: StorageV2
+  providerConfigRef:
+    name: default
