@@ -1,4 +1,4 @@
-# crossplane-azure-homelab
+# crossplane-azure
 
 Manage Azure resources declaratively from a home Kubernetes cluster's YAML, using [Crossplane](https://www.crossplane.io/) and the [Upbound Azure providers](https://marketplace.upbound.io/providers/upbound/provider-family-azure). No Bicep, no Terraform CLI — just `kubectl apply`.
 

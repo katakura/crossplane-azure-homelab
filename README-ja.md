@@ -1,4 +1,4 @@
-# crossplane-azure-homelab
+# crossplane-azure
 
 自宅の Kubernetes クラスタから、[Crossplane](https://www.crossplane.io/) と [Upbound Azure Provider](https://marketplace.upbound.io/providers/upbound/provider-family-azure) を使って Azure リソースを宣言的に管理するサンプルです。Bicep も Terraform CLI も使わず、`kubectl apply` だけで完結します。
 
