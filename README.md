@@ -101,6 +101,7 @@ az network nsg rule update \
 - **A plain Managed Resource can't read a ConfigMap.** There's no built-in way to patch a field's value from a ConfigMap on a bare MR; that requires a `Composition` + `EnvironmentConfig`. For the IP-based NSG rule here, the current IP is resolved with a shell script before `kubectl apply` instead.
 - **VM power state isn't tracked.** Stopping/deallocating a VM manually won't make Crossplane start it back up — `running`/`stopped` isn't part of the `LinuxVirtualMachine` schema at all (inherited from the underlying `azurerm_linux_virtual_machine` Terraform resource).
 - **Drift detection isn't instant.** Expect roughly 5-8 minutes between a manual Azure-side change and Crossplane correcting it back — it's polling-based (`--poll-interval`, default ~1 minute), not event-driven. Changes made through `kubectl` (i.e. via `spec`) instead reconcile in a couple of seconds, since those trigger a Kubernetes Watch event immediately.
+- **A `CannotCreateExternalResource` / `ResourceGroupNotFound` event right after `kubectl apply -f manifests/02-storage-example.yaml` is expected.** `ResourceGroup` and `Account` are applied in the same batch with no explicit dependency between them, so the `Account` controller can attempt creation before the `ResourceGroup` has finished propagating on Azure's side. It self-heals on the next reconcile (confirmed: both resources reach `Ready` within a couple of minutes) — no action needed.
 
 ## Related article
 

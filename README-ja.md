@@ -101,6 +101,7 @@ az network nsg rule update \
 - **素のManaged ResourceはConfigMapを読めない。** ConfigMapの値でフィールドを動的に埋める仕組みはbareなMRにはなく、`Composition` + `EnvironmentConfig`が必要です。ここでのIPベースのNSGルールは、`kubectl apply`の前にシェルスクリプトで現在のIPを解決する形で対応しています。
 - **VMの電源状態は管理対象外。** VMを手動で停止/割り当て解除しても、Crossplaneが起動し直すことはありません。`running`/`stopped`は`LinuxVirtualMachine`のスキーマに含まれていません（元になっている Terraform の `azurerm_linux_virtual_machine` の仕様をそのまま継承）。
 - **ドリフト検知は即時ではない。** 手動変更からCrossplaneが気づいて直すまで、実測でおおよそ5〜8分かかります（`--poll-interval`、既定で約1分間隔のポーリングベースで、イベント駆動ではないため）。一方`kubectl`経由の変更（＝`spec`の変更）はKubernetesのWatchイベントが即座にトリガーするため、数秒で反映されます。
+- **`kubectl apply -f manifests/02-storage-example.yaml`直後に`CannotCreateExternalResource` / `ResourceGroupNotFound`イベントが出ることがありますが、想定内です。** `ResourceGroup`と`Account`を明示的な依存関係なしで同時にapplyしているため、`ResourceGroup`がAzure側で反映しきる前に`Account`側が作成を試みることがあります。次のreconcileで自動的に成功する（実測: 数分以内に両方とも`Ready`になることを確認済み）ので、何もする必要はありません。
 
 ## 関連記事
 
